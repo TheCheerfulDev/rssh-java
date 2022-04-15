@@ -7,8 +7,6 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.concurrent.Callable;
 
 @Command(
@@ -41,5 +39,4 @@ public class Ps implements Callable<Integer> {
 
         return CommandLine.ExitCode.OK;
     }
-
 }
