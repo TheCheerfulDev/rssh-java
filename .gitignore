@@ -3,3 +3,4 @@
 target/
 .java-version
 .menv_profile
+dependency-reduced-pom.xml
