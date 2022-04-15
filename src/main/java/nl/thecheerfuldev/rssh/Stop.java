@@ -1,5 +1,6 @@
 package nl.thecheerfuldev.rssh;
 
+import nl.thecheerfuldev.rssh.service.ProfileService;
 import nl.thecheerfuldev.rssh.service.SshProfileRepository;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -12,7 +13,7 @@ import java.util.concurrent.Callable;
 
 @Command(
         name = "stop",
-        description = "Stop the given profile.",
+        description = "Stop the provided profile.",
         mixinStandardHelpOptions = true)
 public class Stop implements Callable<Integer> {
 
@@ -36,7 +37,7 @@ public class Stop implements Callable<Integer> {
             return CommandLine.ExitCode.USAGE;
         }
 
-        if (!ProfileUtil.isProfileRunning(profile)) {
+        if (!ProfileService.isProfileRunning(profile)) {
             return CommandLine.ExitCode.OK;
         }
 

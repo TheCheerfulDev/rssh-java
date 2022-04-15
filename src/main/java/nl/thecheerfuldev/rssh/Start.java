@@ -1,6 +1,7 @@
 package nl.thecheerfuldev.rssh;
 
 import nl.thecheerfuldev.rssh.entity.SshProfile;
+import nl.thecheerfuldev.rssh.service.ProfileService;
 import nl.thecheerfuldev.rssh.service.SshProfileRepository;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -8,14 +9,10 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.concurrent.Callable;
 
 @Command(name = "start",
-        description = "Start the given profile.",
+        description = "Start the provided profile.",
         mixinStandardHelpOptions = true)
 public class Start implements Callable<Integer> {
 
@@ -35,7 +32,7 @@ public class Start implements Callable<Integer> {
             host = "localhost";
         }
 
-        if (!ProfileUtil.isValidPort(localPort)) {
+        if (ProfileService.isInvalidPort(localPort)) {
             System.out.println("Please provide a valid [localPort]: 1-65535");
             return CommandLine.ExitCode.USAGE;
         }
@@ -48,9 +45,9 @@ public class Start implements Callable<Integer> {
         return startProfile(SshProfileRepository.get(profile));
     }
 
-    private Integer startProfile(SshProfile sshProfile) {
+    Integer startProfile(SshProfile sshProfile) {
 
-        if (ProfileUtil.isProfileRunning(this.profile)) {
+        if (ProfileService.isProfileRunning(this.profile)) {
             System.out.print("Profile [" + this.profile + "] is already running. ");
             new Stop().stopProfile(this.profile);
         }
@@ -67,10 +64,8 @@ public class Start implements Callable<Integer> {
             int i = start.waitFor();
             System.out.println("http://" + this.host + ":" + this.localPort + " can now be reached at " + sshProfile.url());
 
-            Files.deleteIfExists(Path.of(ConfigItems.RSSH_HOME_STRING, sshProfile.profile() + ConfigItems.RSSH_POSTFIX));
-            Path urlFile = Files.createFile(Path.of(ConfigItems.RSSH_HOME_STRING, sshProfile.profile() + ConfigItems.RSSH_POSTFIX));
-            Files.writeString(urlFile, "http://" + this.host + ":" + this.localPort + " -> " + sshProfile.url(),
-                    StandardCharsets.UTF_8, StandardOpenOption.APPEND);
+            ProfileService.deleteForProfile(sshProfile.profile());
+            ProfileService.saveRunningProfile(sshProfile, this.host, this.localPort);
 
             return i;
         } catch (IOException | InterruptedException e) {

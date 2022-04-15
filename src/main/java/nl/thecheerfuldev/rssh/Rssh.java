@@ -15,7 +15,8 @@ import java.util.concurrent.Callable;
         name = "rssh",
         version = "1.0",
         mixinStandardHelpOptions = true,
-        subcommands = {Start.class, Stop.class, Ls.class, Ps.class, Add.class, Rm.class})
+        sortOptions = false,
+        subcommands = {Start.class, Stop.class, Ls.class, Ps.class, Add.class, Rm.class, Restart.class})
 public class Rssh implements Callable<Integer> {
 
     @Spec
@@ -27,8 +28,14 @@ public class Rssh implements Callable<Integer> {
     @Parameters(index = "1", arity = "0..1", description = "Number of the port you want to make available.")
     String localPort = "8080";
 
-    @Option(names = {"-h", "--host"}, arity = "0..1", description = "Override the default (localhost) host.")
+    @Option(names = {"--host"}, arity = "0..1", description = "Override the default (localhost) host.")
     String host = "localhost";
+
+    @Option(names = {"-h", "--help"}, arity = "0", description = "Show this help message and exit.", order = 98)
+    boolean help;
+
+    @Option(names = {"-V", "--version"}, arity = "0", description = "Show version information and exit.", order = 99)
+    boolean version;
 
     @Option(names = {"--reset"}, arity = "1", hidden = true)
     boolean reset;

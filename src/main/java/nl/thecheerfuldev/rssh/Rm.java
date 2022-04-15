@@ -1,5 +1,6 @@
 package nl.thecheerfuldev.rssh;
 
+import nl.thecheerfuldev.rssh.service.ProfileService;
 import nl.thecheerfuldev.rssh.service.SshProfileRepository;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -29,7 +30,7 @@ public class Rm implements Callable<Integer> {
             return CommandLine.ExitCode.USAGE;
         }
 
-        if (ProfileUtil.isProfileRunning(profile) && !force) {
+        if (ProfileService.isProfileRunning(profile) && !force) {
             System.out.print("Profile [" + profile + "] is still running. ");
             System.out.println(" Use --force to remove running profile.");
             System.out.println("This will stop the running profile in the process.");

@@ -1,6 +1,7 @@
 package nl.thecheerfuldev.rssh;
 
 import nl.thecheerfuldev.rssh.entity.SshProfile;
+import nl.thecheerfuldev.rssh.service.ProfileService;
 import nl.thecheerfuldev.rssh.service.SshProfileRepository;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -36,11 +37,11 @@ public class Add implements Callable<Integer> {
             return CommandLine.ExitCode.USAGE;
         }
 
-        if (ProfileUtil.isProfileRunning(profile)) {
+        if (ProfileService.isProfileRunning(profile)) {
             System.out.println("Profile [" + profile + "] is running. Overriding will not stop this profile.");
         }
 
-        if (!ProfileUtil.isValidPort(remotePort)) {
+        if (ProfileService.isInvalidPort(remotePort)) {
             System.out.println("Please provide a valid [remotePort]: 1-65535");
             return CommandLine.ExitCode.USAGE;
         }
