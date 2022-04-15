@@ -1,8 +1,7 @@
-package nl.thecheerfuldev.rssh;
+package nl.thecheerfuldev.rssh.command;
 
 import nl.thecheerfuldev.rssh.entity.SshProfile;
 import nl.thecheerfuldev.rssh.service.ProfileService;
-import nl.thecheerfuldev.rssh.service.SshProfileRepository;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -25,14 +24,13 @@ public class Add implements Callable<Integer> {
     String url;
     @Parameters(index = "3", arity = "1", description = "Ssh command (or config) to connect to ssh server.")
     String sshCommand;
-
     @Option(names = {"--force"}, description = "Forces overriding of existing profile.", arity = "0")
     boolean force;
 
     @Override
     public Integer call() {
 
-        if (SshProfileRepository.exists(profile) && !force) {
+        if (ProfileService.exists(profile) && !force) {
             System.out.println("Profile [" + profile + "] already exists. Use --force to override existing profile.");
             return CommandLine.ExitCode.USAGE;
         }
@@ -46,9 +44,8 @@ public class Add implements Callable<Integer> {
             return CommandLine.ExitCode.USAGE;
         }
 
-        SshProfileRepository.add(new SshProfile(profile, remotePort, url, sshCommand));
         try {
-            SshProfileRepository.writeToDisk();
+            ProfileService.add(new SshProfile(profile, remotePort, url, sshCommand));
             System.out.println("Profile [" + profile + "] has been added.");
         } catch (IOException e) {
             System.out.println("Something went wrong while writing to the profiles.");

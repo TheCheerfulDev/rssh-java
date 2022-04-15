@@ -1,6 +1,6 @@
-package nl.thecheerfuldev.rssh.service;
+package nl.thecheerfuldev.rssh.repository;
 
-import nl.thecheerfuldev.rssh.ConfigItems;
+import nl.thecheerfuldev.rssh.config.ConfigItems;
 import nl.thecheerfuldev.rssh.entity.SshProfile;
 
 import java.io.IOException;
@@ -17,35 +17,33 @@ import java.util.stream.Stream;
 public final class SshProfileRepository {
     private static final Map<String, SshProfile> DATABASE = new HashMap<>();
 
-    static {
+
+    public SshProfileRepository() {
         init();
     }
 
-    private SshProfileRepository() {
-    }
-
-    private static void init() {
+    private void init() {
         if (DATABASE.isEmpty()) {
             loadFromDisk();
         }
     }
 
-    public static void add(SshProfile profile) {
+    public void add(SshProfile profile) {
         DATABASE.put(profile.profile(), profile);
     }
 
-    public static void remove(String profile) {
+    public void remove(String profile) {
         DATABASE.remove(profile);
     }
 
-    public static List<String> getAllProfileNames() {
+    public List<String> getAllProfileNames() {
         return DATABASE.keySet()
                 .stream()
                 .sorted()
                 .toList();
     }
 
-    private static void loadFromDisk() {
+    private void loadFromDisk() {
         if (Files.notExists(ConfigItems.RSSH_PROFILES_PATH)) {
             return;
         }
@@ -64,7 +62,7 @@ public final class SshProfileRepository {
         }
     }
 
-    public static void writeToDisk() throws IOException {
+    public void writeToDisk() throws IOException {
         Path path = ConfigItems.RSSH_PROFILES_PATH;
 
         Files.deleteIfExists(path);
@@ -86,11 +84,11 @@ public final class SshProfileRepository {
         }
     }
 
-    public static SshProfile get(String name) {
+    public SshProfile get(String name) {
         return DATABASE.get(name);
     }
 
-    public static boolean exists(String name) {
+    public boolean exists(String name) {
         return DATABASE.containsKey(name);
     }
 

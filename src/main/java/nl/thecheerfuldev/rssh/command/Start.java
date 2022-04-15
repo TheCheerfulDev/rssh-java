@@ -1,8 +1,8 @@
-package nl.thecheerfuldev.rssh;
+package nl.thecheerfuldev.rssh.command;
 
+import nl.thecheerfuldev.rssh.config.ConfigItems;
 import nl.thecheerfuldev.rssh.entity.SshProfile;
 import nl.thecheerfuldev.rssh.service.ProfileService;
-import nl.thecheerfuldev.rssh.service.SshProfileRepository;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -16,13 +16,22 @@ import java.util.concurrent.Callable;
         mixinStandardHelpOptions = true)
 public class Start implements Callable<Integer> {
 
+    public Start() {
+    }
+
+    public Start(String profile, String localPort, String host) {
+        this.profile = profile;
+        this.localPort = localPort;
+        this.host = host;
+    }
+
     @Parameters(index = "0", arity = "0..1", description = "The name of the profile you wish to start.")
     String profile;
 
     @Parameters(index = "1", arity = "0..1", description = "Number of the port you want to make available.")
     String localPort = "8080";
 
-    @Option(names = {"-h", "--host"}, arity = "0..1", description = "Override the default (localhost) host.")
+    @Option(names = {"--host"}, arity = "0..1", description = "Override the default (localhost) host.")
     String host = "localhost";
 
     @Override
@@ -37,15 +46,15 @@ public class Start implements Callable<Integer> {
             return CommandLine.ExitCode.USAGE;
         }
 
-        if (!SshProfileRepository.exists(profile)) {
+        if (!ProfileService.exists(profile)) {
             System.out.print("Profile [" + profile + "]" + " doesn't exist. ");
-            System.out.println("[" + String.join(", ", SshProfileRepository.getAllProfileNames()) + "]");
+            System.out.println("[" + String.join(", ", ProfileService.getAllProfileNames()) + "]");
             return CommandLine.ExitCode.USAGE;
         }
-        return startProfile(SshProfileRepository.get(profile));
+        return startProfile(ProfileService.getSshProfile(profile));
     }
 
-    Integer startProfile(SshProfile sshProfile) {
+    public Integer startProfile(SshProfile sshProfile) {
 
         if (ProfileService.isProfileRunning(this.profile)) {
             System.out.print("Profile [" + this.profile + "] is already running. ");
@@ -65,11 +74,15 @@ public class Start implements Callable<Integer> {
             System.out.println("http://" + this.host + ":" + this.localPort + " can now be reached at " + sshProfile.url());
 
             ProfileService.deleteForProfile(sshProfile.profile());
-            ProfileService.saveRunningProfile(sshProfile, this.host, this.localPort);
+            if (i != 0) {
+                ProfileService.saveRunningProfile(sshProfile, this.host, this.localPort);
+                System.out.print("Something went wrong while starting the ssh tunnel: ");
+                System.out.println(new String(start.getErrorStream().readAllBytes()));
+            }
 
-            return i;
+            return CommandLine.ExitCode.SOFTWARE;
         } catch (IOException | InterruptedException e) {
-            System.err.println("Something went wrong while starting the ssh tunnel.");
+            System.out.println("Something went wrong while starting the ssh tunnel.");
             return CommandLine.ExitCode.SOFTWARE;
         }
     }

@@ -1,7 +1,6 @@
-package nl.thecheerfuldev.rssh;
+package nl.thecheerfuldev.rssh.command;
 
 import nl.thecheerfuldev.rssh.service.ProfileService;
-import nl.thecheerfuldev.rssh.service.SshProfileRepository;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -13,7 +12,8 @@ import java.util.concurrent.Callable;
 @Command(
         name = "rm",
         description = "Remove the provided profile.",
-        mixinStandardHelpOptions = true)
+        mixinStandardHelpOptions = true,
+        usageHelpAutoWidth = true)
 public class Rm implements Callable<Integer> {
 
     @Parameters(index = "0", arity = "1", description = "Profile that you wish to delete.")
@@ -25,7 +25,7 @@ public class Rm implements Callable<Integer> {
     @Override
     public Integer call() {
 
-        if (!SshProfileRepository.exists(profile)) {
+        if (!ProfileService.exists(profile)) {
             System.out.println("Profile [" + profile + "] doesn't exist.");
             return CommandLine.ExitCode.USAGE;
         }
@@ -39,9 +39,8 @@ public class Rm implements Callable<Integer> {
 
         new Stop().stopProfile(profile);
 
-        SshProfileRepository.remove(profile);
         try {
-            SshProfileRepository.writeToDisk();
+            ProfileService.remove(profile);
             System.out.println("Profile [" + profile + "] has been removed.");
         } catch (IOException e) {
             System.out.println("Something went wrong while deleting the provided profile.");

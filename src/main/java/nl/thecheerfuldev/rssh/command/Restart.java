@@ -1,14 +1,14 @@
-package nl.thecheerfuldev.rssh;
+package nl.thecheerfuldev.rssh.command;
 
 import nl.thecheerfuldev.rssh.entity.RunningProfile;
 import nl.thecheerfuldev.rssh.entity.SshProfile;
 import nl.thecheerfuldev.rssh.service.ProfileService;
-import nl.thecheerfuldev.rssh.service.SshProfileRepository;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 @Command(name = "restart",
@@ -22,9 +22,20 @@ public class Restart implements Callable<Integer> {
     @Override
     public Integer call() throws IOException {
 
-        if (!SshProfileRepository.exists(profile)) {
+        if (profile == null || profile.isBlank()) {
+            System.out.println("profile == null");
+            List<String> runningProfiles = ProfileService.getRunningProfiles();
+            System.out.println(runningProfiles);
+            for (String runningProfile : runningProfiles) {
+                restartProfile(runningProfile);
+
+            }
+            return CommandLine.ExitCode.OK;
+        }
+
+        if (!ProfileService.exists(profile)) {
             System.out.print("Profile [" + profile + "]" + " doesn't exist. ");
-            System.out.println("[" + String.join(", ", SshProfileRepository.getAllProfileNames()) + "]");
+            System.out.println("[" + String.join(", ", ProfileService.getAllProfileNames()) + "]");
             return CommandLine.ExitCode.USAGE;
         }
 
@@ -33,12 +44,17 @@ public class Restart implements Callable<Integer> {
             return CommandLine.ExitCode.USAGE;
         }
 
-        RunningProfile runningProfile = ProfileService.getRunningProfile(profile);
-        Start start = new Start();
-        start.profile = runningProfile.profile();
-        start.host = runningProfile.host();
-        start.localPort = runningProfile.localPort();
+        try {
+            return restartProfile(profile);
+        } catch (IOException e) {
+            throw new RuntimeException(e.getMessage(), e.getCause());
+        }
+    }
 
+    private Integer restartProfile(String profile) throws IOException {
+        System.out.println("Restart.restartProfile() -> " + profile);
+        RunningProfile runningProfile = ProfileService.getRunningProfile(profile);
+        Start start = new Start(runningProfile.profile(), runningProfile.localPort(), runningProfile.host());
         return start.startProfile(new SshProfile(runningProfile.profile(), runningProfile.remotePort(), runningProfile.url(), runningProfile.sshCommand()));
     }
 

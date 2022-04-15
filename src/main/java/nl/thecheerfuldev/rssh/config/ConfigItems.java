@@ -1,7 +1,7 @@
-package nl.thecheerfuldev.rssh;
+package nl.thecheerfuldev.rssh.config;
 
 import nl.thecheerfuldev.rssh.entity.SshProfile;
-import nl.thecheerfuldev.rssh.service.SshProfileRepository;
+import nl.thecheerfuldev.rssh.service.ProfileService;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -37,8 +37,7 @@ public class ConfigItems {
                 new SshProfile("tcd3", "20013", "https://b4bd5e4ea432.thecheerfuldev.nl", "mhnas")
         );
 
-        defaultProfiles.forEach(SshProfileRepository::add);
-        SshProfileRepository.writeToDisk();
+        ProfileService.addAll(defaultProfiles);
     }
 
 }

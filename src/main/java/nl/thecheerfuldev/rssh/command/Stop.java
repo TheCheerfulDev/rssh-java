@@ -1,7 +1,8 @@
-package nl.thecheerfuldev.rssh;
+package nl.thecheerfuldev.rssh.command;
 
+import nl.thecheerfuldev.rssh.config.ConfigItems;
+import nl.thecheerfuldev.rssh.repository.SshProfileRepository;
 import nl.thecheerfuldev.rssh.service.ProfileService;
-import nl.thecheerfuldev.rssh.service.SshProfileRepository;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
@@ -23,7 +24,7 @@ public class Stop implements Callable<Integer> {
     @Override
     public Integer call() {
         if (profile == null || profile.isBlank()) {
-            SshProfileRepository.getAllProfileNames().forEach(this::stopProfile);
+            ProfileService.getAllProfileNames().forEach(this::stopProfile);
             return CommandLine.ExitCode.OK;
         }
 
@@ -32,7 +33,7 @@ public class Stop implements Callable<Integer> {
 
     public Integer stopProfile(final String profile) {
 
-        if (!SshProfileRepository.exists(profile)) {
+        if (!ProfileService.exists(profile)) {
             System.out.println("Profile [" + profile + "] doesn't exist.");
             return CommandLine.ExitCode.USAGE;
         }

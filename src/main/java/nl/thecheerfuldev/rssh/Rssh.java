@@ -1,5 +1,13 @@
 package nl.thecheerfuldev.rssh;
 
+import nl.thecheerfuldev.rssh.command.Add;
+import nl.thecheerfuldev.rssh.command.Ls;
+import nl.thecheerfuldev.rssh.command.Ps;
+import nl.thecheerfuldev.rssh.command.Restart;
+import nl.thecheerfuldev.rssh.command.Rm;
+import nl.thecheerfuldev.rssh.command.Start;
+import nl.thecheerfuldev.rssh.command.Stop;
+import nl.thecheerfuldev.rssh.config.ConfigItems;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Model.CommandSpec;
@@ -63,11 +71,7 @@ public class Rssh implements Callable<Integer> {
         }
 
         if (profile != null && !profile.isBlank()) {
-            Start start = new Start();
-            start.profile = profile;
-            start.localPort = localPort;
-            start.host = host;
-            return start.call();
+            return new Start(this.profile, this.localPort, this.host).call();
         }
 
         spec.commandLine().usage(System.err);

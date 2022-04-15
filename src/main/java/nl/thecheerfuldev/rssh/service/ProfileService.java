@@ -1,17 +1,21 @@
 package nl.thecheerfuldev.rssh.service;
 
-import nl.thecheerfuldev.rssh.ConfigItems;
+import nl.thecheerfuldev.rssh.config.ConfigItems;
 import nl.thecheerfuldev.rssh.entity.RunningProfile;
 import nl.thecheerfuldev.rssh.entity.SshProfile;
+import nl.thecheerfuldev.rssh.repository.SshProfileRepository;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.List;
 import java.util.stream.Stream;
 
 public final class ProfileService {
+
+    private static final SshProfileRepository sshProfileRepository = new SshProfileRepository();
 
     private ProfileService() {
     }
@@ -50,4 +54,37 @@ public final class ProfileService {
         Files.deleteIfExists(Path.of(ConfigItems.RSSH_HOME_STRING, profile + ConfigItems.RSSH_POSTFIX));
     }
 
+    public static void add(SshProfile profile) throws IOException {
+        sshProfileRepository.add(profile);
+        sshProfileRepository.writeToDisk();
+    }
+
+    public static void addAll(List<SshProfile> defaultProfiles) throws IOException {
+        defaultProfiles.forEach(sshProfileRepository::add);
+        sshProfileRepository.writeToDisk();
+    }
+
+    public static void remove(String profile) throws IOException {
+        sshProfileRepository.remove(profile);
+        sshProfileRepository.writeToDisk();
+    }
+
+    public static List<String> getAllProfileNames() {
+        return sshProfileRepository.getAllProfileNames();
+    }
+
+    public static SshProfile getSshProfile(String name) {
+        return sshProfileRepository.get(name);
+    }
+
+    public static boolean exists(String name) {
+        return sshProfileRepository.exists(name);
+    }
+
+    public static List<String> getRunningProfiles() {
+        return sshProfileRepository.getAllProfileNames()
+                .stream()
+                .filter(ProfileService::isProfileRunning)
+                .toList();
+    }
 }
