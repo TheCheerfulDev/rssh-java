@@ -1,12 +1,12 @@
 package nl.thecheerfuldev.rssh;
 
+import nl.thecheerfuldev.rssh.service.SshProfileRepository;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.concurrent.Callable;
 
 @Command(
@@ -18,18 +18,25 @@ public class Rm implements Callable<Integer> {
     @Parameters(index = "0", arity = "1", description = "Profile that you wish to delete.")
     String profile;
 
+    @Option(names = {"--force"}, description = "Forces removal of profile, even when running, stopping it in the process.", arity = "0")
+    boolean force;
+
     @Override
     public Integer call() {
 
-        if (!SshProfileRepository.existsByName(profile)) {
+        if (!SshProfileRepository.exists(profile)) {
             System.out.println("Profile [" + profile + "] doesn't exist.");
             return CommandLine.ExitCode.USAGE;
         }
 
-        if (isProfileRunning(profile)) {
-            System.out.println("Profile [" + profile + "] is still running.");
+        if (ProfileUtil.isProfileRunning(profile) && !force) {
+            System.out.print("Profile [" + profile + "] is still running. ");
+            System.out.println(" Use --force to remove running profile.");
+            System.out.println("This will stop the running profile in the process.");
             return CommandLine.ExitCode.USAGE;
         }
+
+        new Stop().stopProfile(profile);
 
         SshProfileRepository.remove(profile);
         try {
@@ -43,7 +50,4 @@ public class Rm implements Callable<Integer> {
         return CommandLine.ExitCode.OK;
     }
 
-    private boolean isProfileRunning(String profile) {
-        return Files.exists(Path.of(ConfigItems.RSSH_HOME_STRING, profile));
-    }
 }

@@ -1,5 +1,6 @@
 package nl.thecheerfuldev.rssh;
 
+import nl.thecheerfuldev.rssh.service.SshProfileRepository;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -19,7 +20,7 @@ public class Ls implements Callable<Integer> {
         System.out.println("Profiles:");
 
         for (String profile : SshProfileRepository.getAllProfileNames()) {
-            if (isProfileRunning(profile)) {
+            if (ProfileUtil.isProfileRunning(profile)) {
                 try {
                     String urlString =
                             Files.readAllLines(Path.of(ConfigItems.RSSH_HOME_STRING, profile + ConfigItems.RSSH_POSTFIX)).get(0);
@@ -32,10 +33,6 @@ public class Ls implements Callable<Integer> {
             }
         }
         return CommandLine.ExitCode.OK;
-    }
-
-    private boolean isProfileRunning(String profile) {
-        return Files.exists(Path.of(ConfigItems.RSSH_HOME_STRING, profile));
     }
 
 }

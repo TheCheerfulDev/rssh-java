@@ -1,13 +1,13 @@
 package nl.thecheerfuldev.rssh;
 
+import nl.thecheerfuldev.rssh.entity.SshProfile;
+import nl.thecheerfuldev.rssh.service.SshProfileRepository;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.concurrent.Callable;
 
 @Command(
@@ -25,22 +25,22 @@ public class Add implements Callable<Integer> {
     @Parameters(index = "3", arity = "1", description = "Ssh command (or config) to connect to ssh server.")
     String sshCommand;
 
-    @Option(names = {"--force"}, description = "Forces overriding of existing profile.", arity = "0..1")
+    @Option(names = {"--force"}, description = "Forces overriding of existing profile.", arity = "0")
     boolean force;
 
     @Override
     public Integer call() {
 
-        if (SshProfileRepository.existsByName(profile) && !force) {
+        if (SshProfileRepository.exists(profile) && !force) {
             System.out.println("Profile [" + profile + "] already exists. Use --force to override existing profile.");
             return CommandLine.ExitCode.USAGE;
         }
 
-        if (isProfileRunning(profile)) {
+        if (ProfileUtil.isProfileRunning(profile)) {
             System.out.println("Profile [" + profile + "] is running. Overriding will not stop this profile.");
         }
 
-        if (!isValidPort(remotePort)) {
+        if (!ProfileUtil.isValidPort(remotePort)) {
             System.out.println("Please provide a valid [remotePort]: 1-65535");
             return CommandLine.ExitCode.USAGE;
         }
@@ -54,21 +54,6 @@ public class Add implements Callable<Integer> {
             return CommandLine.ExitCode.SOFTWARE;
         }
         return CommandLine.ExitCode.OK;
-    }
-
-    private boolean isValidPort(String remotePort) {
-        int port;
-        try {
-            port = Integer.parseInt(remotePort);
-        } catch (NumberFormatException e) {
-            return false;
-        }
-
-        return port >= 1 && port <= 65535;
-    }
-
-    private boolean isProfileRunning(String profile) {
-        return Files.exists(Path.of(ConfigItems.RSSH_HOME_STRING, profile));
     }
 
 }

@@ -1,5 +1,6 @@
 package nl.thecheerfuldev.rssh;
 
+import nl.thecheerfuldev.rssh.service.SshProfileRepository;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
@@ -30,12 +31,12 @@ public class Stop implements Callable<Integer> {
 
     public Integer stopProfile(final String profile) {
 
-        if (!SshProfileRepository.existsByName(profile)) {
+        if (!SshProfileRepository.exists(profile)) {
             System.out.println("Profile [" + profile + "] doesn't exist.");
             return CommandLine.ExitCode.USAGE;
         }
 
-        if (!isProfileRunning(profile)) {
+        if (!ProfileUtil.isProfileRunning(profile)) {
             return CommandLine.ExitCode.OK;
         }
 
@@ -59,7 +60,4 @@ public class Stop implements Callable<Integer> {
         }
     }
 
-    private boolean isProfileRunning(String profile) {
-        return Files.exists(Path.of(ConfigItems.RSSH_HOME_STRING, profile));
-    }
 }

@@ -1,5 +1,8 @@
 package nl.thecheerfuldev.rssh;
 
+import nl.thecheerfuldev.rssh.entity.SshProfile;
+import nl.thecheerfuldev.rssh.service.SshProfileRepository;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -24,10 +27,14 @@ public class ConfigItems {
         if (Files.exists(ConfigItems.RSSH_PROFILES_PATH)) {
             return;
         }
+
         List<SshProfile> defaultProfiles = List.of(
                 new SshProfile("dev", "20001", "https://dev.markhendriks.nl", "mhnas"),
                 new SshProfile("dev2", "20002", "https://dev2.markhendriks.nl", "mhnas"),
-                new SshProfile("dev3", "20003", "https://dev3.markhendriks.nl", "mhnas")
+                new SshProfile("dev3", "20003", "https://dev3.markhendriks.nl", "mhnas"),
+                new SshProfile("tcd1", "20011", "https://d32b45664ffa.thecheerfuldev.nl", "mhnas"),
+                new SshProfile("tcd2", "20012", "https://ec7fed9d2e90.thecheerfuldev.nl", "mhnas"),
+                new SshProfile("tcd3", "20013", "https://b4bd5e4ea432.thecheerfuldev.nl", "mhnas")
         );
 
         defaultProfiles.forEach(SshProfileRepository::add);
