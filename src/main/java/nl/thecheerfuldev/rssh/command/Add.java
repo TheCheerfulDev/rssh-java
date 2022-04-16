@@ -8,6 +8,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 @Command(
@@ -17,6 +18,8 @@ import java.util.concurrent.Callable;
         footerHeading = " ",
         footer = "")
 public class Add implements Callable<Integer> {
+
+    private final List<String> reservedWords = List.of("start", "stop", "restart", "ls", "ps", "add", "rm");
 
     @Parameters(index = "0", arity = "1", description = "Profile name.")
     String profile;
@@ -33,6 +36,11 @@ public class Add implements Callable<Integer> {
 
     @Override
     public Integer call() {
+        if (reservedWords.contains(profile)) {
+            System.out.println("[" + profile + "] can't be used, as it's a reserved word. Reserved words: [" + String.join(", ", reservedWords) + "]");
+            return CommandLine.ExitCode.USAGE;
+        }
+
         if (ProfileService.exists(profile) && !force) {
             System.out.println("Profile [" + profile + "] already exists. Use --force to override existing profile.");
             return CommandLine.ExitCode.USAGE;
