@@ -13,7 +13,9 @@ import java.util.concurrent.Callable;
 
 @Command(
         name = "add",
-        description = "Adds new profile with the provided details. If the profile that you wish to add already exists, it won't be overridden, unless forced with --force.",
+        description = "Adds new profile with the provided details. If the profile that you wish to add already exists, it won't be overridden, unless forced with --force."
+                + "%n%n"
+                + "The following words are reserved, and can't be used to name profiles: [start, stop, restart, ls, ps, add, rm].",
         header = "Add a new profile with the provided details.",
         footerHeading = " ",
         footer = "")

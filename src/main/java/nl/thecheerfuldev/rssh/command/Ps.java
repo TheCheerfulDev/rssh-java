@@ -7,12 +7,14 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 @Command(
         name = "ps",
         header = "List all running profiles.",
-        description = "Lists all running profiles with the corresponding details.",
+        description = "Lists all running profiles with the corresponding details. There will be no output if there are no running profiles.",
         footerHeading = " ",
         footer = "")
 public class Ps implements Callable<Integer> {
@@ -22,24 +24,23 @@ public class Ps implements Callable<Integer> {
 
     @Override
     public Integer call() {
-        System.out.println("Running profiles:");
 
-        boolean isAnyProfileRunning = false;
+        List<String> runningProfiles = new ArrayList<>();
 
         for (String profile : ProfileService.getAllProfileNames()) {
             if (ProfileService.isProfileRunning(profile)) {
-                isAnyProfileRunning = true;
                 try {
                     RunningProfile runningProfile = ProfileService.getRunningProfile(profile);
-                    System.out.println("  " + profile + " " + runningProfile.activeString());
+                    runningProfiles.add("  " + profile + " " + runningProfile.activeString());
                 } catch (IOException e) {
                     return CommandLine.ExitCode.SOFTWARE;
                 }
             }
         }
 
-        if (!isAnyProfileRunning) {
-            System.out.println("  None.");
+        if (!runningProfiles.isEmpty()) {
+            System.out.println("Running profiles:");
+            runningProfiles.forEach(System.out::println);
         }
 
         return CommandLine.ExitCode.OK;

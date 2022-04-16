@@ -21,7 +21,7 @@ import java.util.concurrent.Callable;
 
 @Command(
         name = "rssh",
-        version = "rssh - Remote SSH Tunneling 1.0 © Mark Hendriks <thecheerfuldev>",
+        version = "rssh - Remote SSH Tunneling 1.0 © 2022 by Mark Hendriks <thecheerfuldev>",
         sortOptions = false,
         parameterListHeading = "%nParameters:%n",
         optionListHeading = "%nOptions:%n",
@@ -52,7 +52,7 @@ public class Rssh implements Callable<Integer> {
     @Option(names = {"--help"}, arity = "0", description = "Show this help message and exit.", usageHelp = true)
     boolean help;
 
-    @Option(names = {"--version"}, arity = "0", description = "Show this help message and exit.", versionHelp = true)
+    @Option(names = {"--version"}, arity = "0", description = "Show version information and exit.", versionHelp = true)
     boolean version;
 
     @Option(names = {"--reset"}, arity = "1", hidden = true)
