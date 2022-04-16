@@ -15,7 +15,8 @@ import java.util.concurrent.Callable;
 @Command(
         name = "stop",
         header = "Stop the provided profile.",
-        description = "Stops the provided profile. If no profile is provided, all running profiles will be stopped.",
+        description = "Stops the provided profile. If no profile is provided, all running profiles will be stopped. " +
+                "There will be no output if there are no running profiles to be stopped.",
         footerHeading = " ",
         footer = "")
 public class Stop implements Callable<Integer> {
