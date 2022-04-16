@@ -12,8 +12,10 @@ import java.util.concurrent.Callable;
 
 @Command(
         name = "add",
-        description = "Add a new profile with the provided details.",
-        mixinStandardHelpOptions = true)
+        description = "Adds new profile with the provided details. If the profile that you wish to add already exists, it won't be overridden, unless forced with --force.",
+        header = "Add a new profile with the provided details.",
+        footerHeading = " ",
+        footer = "")
 public class Add implements Callable<Integer> {
 
     @Parameters(index = "0", arity = "1", description = "Profile name.")
@@ -26,10 +28,11 @@ public class Add implements Callable<Integer> {
     String sshCommand;
     @Option(names = {"--force"}, description = "Forces overriding of existing profile.", arity = "0")
     boolean force;
+    @Option(names = {"--help"}, arity = "0", description = "Show this help message and exit.", usageHelp = true)
+    boolean help;
 
     @Override
     public Integer call() {
-
         if (ProfileService.exists(profile) && !force) {
             System.out.println("Profile [" + profile + "] already exists. Use --force to override existing profile.");
             return CommandLine.ExitCode.USAGE;

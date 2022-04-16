@@ -21,10 +21,20 @@ import java.util.concurrent.Callable;
 
 @Command(
         name = "rssh",
-        version = "1.0",
-        mixinStandardHelpOptions = true,
+        version = "rssh - Remote SSH Tunneling 1.0 © Mark Hendriks <thecheerfuldev>",
         sortOptions = false,
-        subcommands = {Start.class, Stop.class, Ls.class, Ps.class, Add.class, Rm.class, Restart.class})
+        parameterListHeading = "%nParameters:%n",
+        optionListHeading = "%nOptions:%n",
+        commandListHeading = "%nCommands:%n",
+        headerHeading = "Usage:%n%n",
+        synopsisHeading = "%n",
+        descriptionHeading = "%nDescription:%n%n",
+        header = "Start the provided profile.",
+        footerHeading = "%n",
+        footer = "See 'rssh <COMMAND> --help' for information on a specific command.%n",
+        description = "Starts a remote ssh tunnel with the presets in the provided profile. When no port is provided, 8080 will be used.",
+        scope = CommandLine.ScopeType.INHERIT,
+        subcommands = {Start.class, Stop.class, Restart.class, Ls.class, Ps.class, Add.class, Rm.class})
 public class Rssh implements Callable<Integer> {
 
     @Spec
@@ -39,10 +49,10 @@ public class Rssh implements Callable<Integer> {
     @Option(names = {"--host"}, arity = "0..1", description = "Override the default (localhost) host.")
     String host = "localhost";
 
-    @Option(names = {"-h", "--help"}, arity = "0", description = "Show this help message and exit.", order = 98)
+    @Option(names = {"--help"}, arity = "0", description = "Show this help message and exit.", usageHelp = true)
     boolean help;
 
-    @Option(names = {"-V", "--version"}, arity = "0", description = "Show version information and exit.", order = 99)
+    @Option(names = {"--version"}, arity = "0", description = "Show this help message and exit.", versionHelp = true)
     boolean version;
 
     @Option(names = {"--reset"}, arity = "1", hidden = true)
@@ -74,8 +84,8 @@ public class Rssh implements Callable<Integer> {
             return new Start(this.profile, this.localPort, this.host).call();
         }
 
-        spec.commandLine().usage(System.err);
-        return CommandLine.ExitCode.USAGE;
+        spec.commandLine().usage(System.out);
+        return CommandLine.ExitCode.OK;
     }
 
 }

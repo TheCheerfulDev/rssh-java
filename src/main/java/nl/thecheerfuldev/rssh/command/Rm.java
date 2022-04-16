@@ -11,20 +11,23 @@ import java.util.concurrent.Callable;
 
 @Command(
         name = "rm",
-        description = "Remove the provided profile.",
+        header = "Remove the provided profile.",
+        description = "Removes the provided profile. If the profile that you wish to remove is still running, it won't remove the profile, unless forced with --force.",
+        footerHeading = " ",
+        footer = "",
         mixinStandardHelpOptions = true,
         usageHelpAutoWidth = true)
 public class Rm implements Callable<Integer> {
 
-    @Parameters(index = "0", arity = "1", description = "Profile that you wish to delete.")
+    @Parameters(index = "0", arity = "1", description = "Profile that you wish to remove.")
     String profile;
-
     @Option(names = {"--force"}, description = "Forces removal of profile, even when running, stopping it in the process.", arity = "0")
     boolean force;
+    @Option(names = {"--help"}, arity = "0", description = "Show this help message and exit.", usageHelp = true)
+    boolean help;
 
     @Override
     public Integer call() {
-
         if (!ProfileService.exists(profile)) {
             System.out.println("Profile [" + profile + "] doesn't exist.");
             return CommandLine.ExitCode.USAGE;

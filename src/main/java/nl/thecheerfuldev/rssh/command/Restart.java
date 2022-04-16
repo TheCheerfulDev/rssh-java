@@ -5,6 +5,7 @@ import nl.thecheerfuldev.rssh.entity.SshProfile;
 import nl.thecheerfuldev.rssh.service.ProfileService;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 import java.io.IOException;
@@ -12,20 +13,22 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 @Command(name = "restart",
-        description = "Restart the provided profile.",
+        header = "Restart the provided profile.",
+        description = "Restarts the provided profile. If no profile is provided, all running profiles will be restarted.",
+        footerHeading = " ",
+        footer = "",
         mixinStandardHelpOptions = true)
 public class Restart implements Callable<Integer> {
 
-    @Parameters(index = "0", arity = "0..1", description = "The name of the profile you wish to start.")
+    @Parameters(index = "0", arity = "0..1", description = "The name of the profile you wish to restart.  If no profile is provided, all running profiles will be restarted.")
     String profile;
+    @Option(names = {"--help"}, arity = "0", description = "Show this help message and exit.", usageHelp = true)
+    boolean help;
 
     @Override
     public Integer call() throws IOException {
-
         if (profile == null || profile.isBlank()) {
-            System.out.println("profile == null");
             List<String> runningProfiles = ProfileService.getRunningProfiles();
-            System.out.println(runningProfiles);
             for (String runningProfile : runningProfiles) {
                 restartProfile(runningProfile);
 
@@ -52,10 +55,11 @@ public class Restart implements Callable<Integer> {
     }
 
     private Integer restartProfile(String profile) throws IOException {
-        System.out.println("Restart.restartProfile() -> " + profile);
         RunningProfile runningProfile = ProfileService.getRunningProfile(profile);
+        System.out.println("Restarting profile [" + profile + "].");
+        new Stop().handleStop(profile);
         Start start = new Start(runningProfile.profile(), runningProfile.localPort(), runningProfile.host());
-        return start.startProfile(new SshProfile(runningProfile.profile(), runningProfile.remotePort(), runningProfile.url(), runningProfile.sshCommand()));
+        return start.handleStart(new SshProfile(runningProfile.profile(), runningProfile.remotePort(), runningProfile.url(), runningProfile.sshCommand()));
     }
 
 }

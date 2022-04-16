@@ -12,8 +12,10 @@ import java.io.IOException;
 import java.util.concurrent.Callable;
 
 @Command(name = "start",
-        description = "Start the provided profile.",
-        mixinStandardHelpOptions = true)
+        header = "Start the provided profile.",
+        description = "Starts a remote ssh tunnel with the presets in the provided profile. When no port is provided, it will default to port 8080.",
+        footerHeading = " ",
+        footer = "")
 public class Start implements Callable<Integer> {
 
     public Start() {
@@ -25,18 +27,18 @@ public class Start implements Callable<Integer> {
         this.host = host;
     }
 
-    @Parameters(index = "0", arity = "0..1", description = "The name of the profile you wish to start.")
+    @Parameters(index = "0", arity = "1", description = "The name of the profile you wish to start.")
     String profile;
-
-    @Parameters(index = "1", arity = "0..1", description = "Number of the port you want to make available.")
+    @Parameters(index = "1", arity = "0..1", description = "Port you want to make available. Defaults to port 8080 if none is provided.")
     String localPort = "8080";
-
     @Option(names = {"--host"}, arity = "0..1", description = "Override the default (localhost) host.")
     String host = "localhost";
 
+    @Option(names = {"--help"}, arity = "0", description = "Show this help message and exit.", usageHelp = true)
+    boolean help;
+
     @Override
     public Integer call() {
-
         if (host == null || host.isBlank()) {
             host = "localhost";
         }
@@ -58,11 +60,17 @@ public class Start implements Callable<Integer> {
 
         if (ProfileService.isProfileRunning(this.profile)) {
             System.out.print("Profile [" + this.profile + "] is already running. ");
-            new Stop().stopProfile(this.profile);
+            handleStop(this.profile);
         }
-
         System.out.println("Starting profile [" + this.profile + "].");
+        return handleStart(sshProfile);
+    }
 
+    private void handleStop(String profile) {
+        new Stop().handleStop(profile);
+    }
+
+    public int handleStart(SshProfile sshProfile) {
         ProcessBuilder processBuilder = new ProcessBuilder();
         processBuilder.command("ssh", "-f", "-N", "-M", "-S", ConfigItems.RSSH_HOME_STRING + "/" + sshProfile.profile(), "-R",
                 sshProfile.remotePort() + ":" + this.host + ":" + this.localPort, sshProfile.sshCommand());
@@ -75,12 +83,13 @@ public class Start implements Callable<Integer> {
 
             ProfileService.deleteForProfile(sshProfile.profile());
             if (i != 0) {
-                ProfileService.saveRunningProfile(sshProfile, this.host, this.localPort);
                 System.out.print("Something went wrong while starting the ssh tunnel: ");
                 System.out.println(new String(start.getErrorStream().readAllBytes()));
+                return i;
             }
 
-            return CommandLine.ExitCode.SOFTWARE;
+            ProfileService.saveRunningProfile(sshProfile, this.host, this.localPort);
+            return i;
         } catch (IOException | InterruptedException e) {
             System.out.println("Something went wrong while starting the ssh tunnel.");
             return CommandLine.ExitCode.SOFTWARE;

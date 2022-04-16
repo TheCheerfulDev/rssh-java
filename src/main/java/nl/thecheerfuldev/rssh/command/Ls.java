@@ -4,15 +4,21 @@ import nl.thecheerfuldev.rssh.entity.RunningProfile;
 import nl.thecheerfuldev.rssh.service.ProfileService;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 import java.io.IOException;
 import java.util.concurrent.Callable;
 
 @Command(
         name = "ls",
-        description = "List all profiles.",
-        mixinStandardHelpOptions = true)
+        header = "List all profiles.",
+        description = "Lists all profiles. If a profile is running, it will print the details.",
+        footerHeading = " ",
+        footer = "")
 public class Ls implements Callable<Integer> {
+
+    @Option(names = {"--help"}, arity = "0", description = "Show this help message and exit.", usageHelp = true)
+    boolean help;
 
     @Override
     public Integer call() {
@@ -34,3 +40,4 @@ public class Ls implements Callable<Integer> {
     }
 
 }
+

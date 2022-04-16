@@ -1,10 +1,10 @@
 package nl.thecheerfuldev.rssh.command;
 
 import nl.thecheerfuldev.rssh.config.ConfigItems;
-import nl.thecheerfuldev.rssh.repository.SshProfileRepository;
 import nl.thecheerfuldev.rssh.service.ProfileService;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 import java.io.IOException;
@@ -14,12 +14,15 @@ import java.util.concurrent.Callable;
 
 @Command(
         name = "stop",
-        description = "Stop the provided profile.",
-        mixinStandardHelpOptions = true)
+        header = "Stop the provided profile.",
+        description = "Stops the provided profile. If no profile is provided, all running profiles will be stopped.",
+        footerHeading = " ",
+        footer = "")
 public class Stop implements Callable<Integer> {
-
-    @Parameters(index = "0", arity = "0..1")
+    @Parameters(index = "0", arity = "0..1", description = "The name of the profile you wish to stop. If no profile is provided, all running profiles will be stopped.")
     String profile;
+    @Option(names = {"--help"}, arity = "0", description = "Show this help message and exit.", usageHelp = true)
+    boolean help;
 
     @Override
     public Integer call() {
@@ -44,6 +47,10 @@ public class Stop implements Callable<Integer> {
 
         System.out.println("Stopping profile [" + profile + "].");
 
+        return handleStop(profile);
+    }
+
+    public int handleStop(String profile) {
         ProcessBuilder processBuilder = new ProcessBuilder("ssh", "-S", ConfigItems.RSSH_HOME_STRING + "/" + profile, "-O",
                 "exit", "mhnas", "2>/dev/null");
 
@@ -61,5 +68,4 @@ public class Stop implements Callable<Integer> {
             return CommandLine.ExitCode.SOFTWARE;
         }
     }
-
 }
