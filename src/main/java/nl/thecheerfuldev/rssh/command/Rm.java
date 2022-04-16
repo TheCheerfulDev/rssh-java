@@ -15,8 +15,7 @@ import java.util.concurrent.Callable;
         description = "Removes the provided profile. If the profile that you wish to remove is still running, it won't remove the profile, unless forced with --force.",
         footerHeading = " ",
         footer = "",
-        mixinStandardHelpOptions = true,
-        usageHelpAutoWidth = true)
+        mixinStandardHelpOptions = true)
 public class Rm implements Callable<Integer> {
 
     @Parameters(index = "0", arity = "1", description = "Profile that you wish to remove.")
