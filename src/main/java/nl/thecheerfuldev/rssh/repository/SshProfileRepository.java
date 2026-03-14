@@ -80,7 +80,7 @@ public final class SshProfileRepository {
                         }
                     });
         } catch (IOException e) {
-            System.out.println("Something went wring while saving the git-cd database.");
+            System.out.println("Something went wrong while saving the rssh database.");
         }
     }
 

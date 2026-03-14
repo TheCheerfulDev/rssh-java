@@ -21,7 +21,7 @@ import java.util.concurrent.Callable;
 
 @Command(
         name = "rssh",
-        version = "rssh - Remote SSH Tunneling 1.0 © 2022 by Mark Hendriks <thecheerfuldev>",
+        version = "rssh - Remote SSH Tunneling 1.1 © 2024 by Mark Hendriks <thecheerfuldev>",
         sortOptions = false,
         parameterListHeading = "%nParameters:%n",
         optionListHeading = "%nOptions:%n",
